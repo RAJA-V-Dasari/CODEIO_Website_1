@@ -1,2 +1,7 @@
 # CODEIO_Website_1
-Attempt 1
+Backend setup: 
+`cd server`
+`npm install`
+
+Server Run:
+`node index.js`

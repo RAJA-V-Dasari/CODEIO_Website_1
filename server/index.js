@@ -1,40 +1,25 @@
 import express from "express";
 import dotenv from "dotenv";
-import connectDB from "./config/db.js";
-
-// Named imports for uploads
-import { teamUpload, eventUpload, projectUpload } from "./middleware/upload.js";
+import { connectDB, getDB } from "./config/db.js";
 
 dotenv.config();
-connectDB(); // Connect to MongoDB
 
 const app = express();
-
-// Middleware to parse JSON bodies
 app.use(express.json());
 
-// ====== TEST ROUTE FOR DATABASE ======
-app.get("/test-db", (req, res) => {
-  res.send("DB working ✅");
-});
+// Connect to MongoDB
+connectDB();
 
-// ====== TEST ROUTE FOR TEAM IMAGE UPLOAD ======
-app.post("/test-upload-team", teamUpload.single("image"), (req, res) => {
-  res.json({ url: req.file.path });
+// Test route
+app.get("/test-db", async (req, res) => {
+  try {
+    const db = getDB();
+    const collections = await db.collections();
+    res.json({ message: "DB connected ", collections: collections.map(c => c.collectionName) });
+  } catch (err) {
+    res.status(500).json({ message: "DB error ", error: err.message });
+  }
 });
-
-// ====== TEST ROUTE FOR EVENT IMAGE UPLOAD ======
-app.post("/test-upload-event", eventUpload.single("image"), (req, res) => {
-  res.json({ url: req.file.path });
-});
-
-// ====== TEST ROUTE FOR PROJECT IMAGE UPLOAD ======
-app.post("/test-upload-project", projectUpload.single("image"), (req, res) => {
-  res.json({ url: req.file.path });
-});
-
-// ====== OTHER ROUTES CAN GO HERE ======
-// Example: app.use("/api/events", eventRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT} 🚀`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT} `));
